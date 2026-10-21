@@ -1,0 +1,109 @@
+(async () => {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+
+  const trackSelector = '[data-testid="MusicTrackRow_Info"]';
+
+
+  function getTrackRows() {
+    return [...document.querySelectorAll(trackSelector)];
+  }
+
+  function getScrollContainer(element) {
+    let node = element;
+    while (node && node !== document.body) {
+      if (node.scrollHeight > node.clientHeight + 100) {
+        const style = getComputedStyle(node);
+        if (/(auto|scroll)/.test(style.overflowY)) return node;
+      }
+      node = node.parentElement;
+    }
+    return document.scrollingElement;
+  }
+
+  const firstRows = getTrackRows();
+
+  if (!firstRows.length) {
+    alert("Песни не найдены. Возможно, у VK другие селекторы.");
+    return;
+  }
+
+  const container = getScrollContainer(firstRows[0]);
+  const tracks = new Map();
+  const started = Date.now();
+  const maxTime = 5 * 60 * 1000;
+  let unchanged = 0;
+  let previousCount = 0;
+
+  function collect() {
+    for (const row of getTrackRows()) {
+      const parts = [...row.children]
+        .map(el => el.innerText.trim())
+        .filter(Boolean);
+
+      if (parts.length < 2) continue;
+
+      const title = parts[0];
+      const artist = parts[1];
+      if (!title || !artist) continue;
+
+      const line = ${artist} - ${title};
+      tracks.set(line.toLowerCase(), line);
+    }
+  }
+
+  console.log("Начинаю сбор песен...");
+  while (Date.now() - started < maxTime) {
+    collect();
+
+    const count = tracks.size;
+    console.log(Найдено песен: ${count});
+
+    if (count > previousCount) {
+      previousCount = count;
+      unchanged = 0;
+    } else {
+      unchanged++;
+    }
+
+    if (unchanged >= 18) {
+      container.scrollTop = container.scrollHeight;
+      await sleep(1500);
+      collect();
+
+      if (tracks.size === previousCount) break;
+      previousCount = tracks.size;
+      unchanged = 0;
+    }
+
+    container.scrollTop += Math.max(
+      500,
+      Math.floor(container.clientHeight * 0.75)
+    );
+
+    await sleep(700);
+  }
+
+  collect();
+
+  const result = [...tracks.values()].join("\n");
+  if (!result) {
+    alert("Не удалось собрать песни.");
+    return;
+  }
+
+  const blob = new Blob(["\uFEFF" + result], {
+    type: "text/plain;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vk-playlist.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+
+  alert(
+    Готово! Собрано ${tracks.size} уникальных песен.\n +
+    "Файл vk-playlist.txt сохранён."
+  );
+})();
