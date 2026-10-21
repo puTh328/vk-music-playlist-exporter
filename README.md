@@ -38,9 +38,9 @@ VK Music Playlist Exporter — это JavaScript-скрипт, который с
 6. Дождись завершения сбора композиций.
 7. Найди скачанный файл `vk-playlist.txt`.
 
-important❗❗❗
+ВАЖНО❗❗❗
 Если не работает и пишет: Warning: Don’t paste code into the DevTools Console that you don’t understand or haven’t reviewed yourself. This could allow attackers to steal your identity or take control of your computer. Type "allow pasting" below and press Enter to allow pasting. 
-нужно ввести вручную:(allow pasting) и потом нажать enter
+Нужно ввести вручную:(allow pasting) и потом нажать enter
 
  Формат результата
 
