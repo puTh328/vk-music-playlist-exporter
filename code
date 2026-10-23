@@ -1,10 +1,11 @@
+
 (async () => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-
+  // Ищем строки с песнями в новом интерфейсе VK
   const trackSelector = '[data-testid="MusicTrackRow_Info"]';
 
-
+  // Находим контейнер, в котором находится больше всего песен
   function getTrackRows() {
     return [...document.querySelectorAll(trackSelector)];
   }
@@ -47,7 +48,7 @@
       const artist = parts[1];
       if (!title || !artist) continue;
 
-      const line = ${artist} - ${title};
+      const line = `${artist} - ${title}`;
       tracks.set(line.toLowerCase(), line);
     }
   }
@@ -57,7 +58,7 @@
     collect();
 
     const count = tracks.size;
-    console.log(Найдено песен: ${count});
+    console.log(`Найдено песен: ${count}`);
 
     if (count > previousCount) {
       previousCount = count;
@@ -67,6 +68,7 @@
     }
 
     if (unchanged >= 18) {
+      // Несколько дополнительных попыток подгрузки внизу
       container.scrollTop = container.scrollHeight;
       await sleep(1500);
       collect();
@@ -103,7 +105,7 @@
   URL.revokeObjectURL(url);
 
   alert(
-    Готово! Собрано ${tracks.size} уникальных песен.\n +
+    `Готово! Собрано ${tracks.size} уникальных песен.\n` +
     "Файл vk-playlist.txt сохранён."
   );
 })();
